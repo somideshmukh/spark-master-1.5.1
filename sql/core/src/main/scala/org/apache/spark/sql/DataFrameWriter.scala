@@ -245,7 +245,7 @@ final class DataFrameWriter private[sql](df: DataFrame) {
         val schema = JdbcUtils.schemaString(df, url)
         val sql = s"CREATE TABLE $table ($schema)"
 
-        conn.createStatement().executeUpdate(sql)
+        conn.prepareStatement(sql).executeUpdate()
       }
     } finally {
       conn.close()
@@ -281,18 +281,6 @@ final class DataFrameWriter private[sql](df: DataFrame) {
   ///////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * Saves the content of the [[DataFrame]] in ORC format at the specified path.
-   * This is equivalent to:
-   * {{{
-   *   format("orc").save(path)
-   * }}}
-   *
-   * @since 1.5.0
-   * @note Currently, this method can only be used together with `HiveContext`.
-   */
-  def orc(path: String): Unit = format("orc").save(path)
-
-  /**
    * Specifies the underlying output data source. Built-in options include "parquet", "json", etc.
    *
    * @since 1.4.0
@@ -326,5 +314,17 @@ final class DataFrameWriter private[sql](df: DataFrame) {
       extraOptions.toMap,
       df)
   }
+
+  /**
+   * Saves the content of the [[DataFrame]] in ORC format at the specified path.
+   * This is equivalent to:
+   * {{{
+   *   format("orc").save(path)
+   * }}}
+   *
+   * @since 1.5.0
+   * @note Currently, this method can only be used together with `HiveContext`.
+   */
+  def orc(path: String): Unit = format("orc").save(path)
 
 }
