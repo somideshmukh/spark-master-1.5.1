@@ -244,6 +244,7 @@ final class DataFrameWriter private[sql](df: DataFrame) {
       if (!tableExists) {
         val schema = JdbcUtils.schemaString(df, url)
         val sql = s"CREATE TABLE $table ($schema)"
+
         conn.createStatement().executeUpdate(sql)
       }
     } finally {
@@ -265,6 +266,33 @@ final class DataFrameWriter private[sql](df: DataFrame) {
   def json(path: String): Unit = format("json").save(path)
 
   /**
+   * Saves the content of the [[DataFrame]] in Parquet format at the specified path.
+   * This is equivalent to:
+   * {{{
+   *   format("parquet").save(path)
+   * }}}
+   *
+   * @since 1.4.0
+   */
+  def parquet(path: String): Unit = format("parquet").save(path)
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // Builder pattern config options
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Saves the content of the [[DataFrame]] in ORC format at the specified path.
+   * This is equivalent to:
+   * {{{
+   *   format("orc").save(path)
+   * }}}
+   *
+   * @since 1.5.0
+   * @note Currently, this method can only be used together with `HiveContext`.
+   */
+  def orc(path: String): Unit = format("orc").save(path)
+
+  /**
    * Specifies the underlying output data source. Built-in options include "parquet", "json", etc.
    *
    * @since 1.4.0
@@ -273,10 +301,6 @@ final class DataFrameWriter private[sql](df: DataFrame) {
     this.source = source
     this
   }
-
-  ///////////////////////////////////////////////////////////////////////////////////////
-  // Builder pattern config options
-  ///////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * Saves the content of the [[DataFrame]] at the specified path.
@@ -302,28 +326,5 @@ final class DataFrameWriter private[sql](df: DataFrame) {
       extraOptions.toMap,
       df)
   }
-
-  /**
-   * Saves the content of the [[DataFrame]] in Parquet format at the specified path.
-   * This is equivalent to:
-   * {{{
-   *   format("parquet").save(path)
-   * }}}
-   *
-   * @since 1.4.0
-   */
-  def parquet(path: String): Unit = format("parquet").save(path)
-
-  /**
-   * Saves the content of the [[DataFrame]] in ORC format at the specified path.
-   * This is equivalent to:
-   * {{{
-   *   format("orc").save(path)
-   * }}}
-   *
-   * @since 1.5.0
-   * @note Currently, this method can only be used together with `HiveContext`.
-   */
-  def orc(path: String): Unit = format("orc").save(path)
 
 }
